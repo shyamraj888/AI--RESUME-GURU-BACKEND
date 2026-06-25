@@ -10,7 +10,8 @@ lerna-debug.log*
 node_modules/
 .env
 server/.env
-server/uploads/
+server/uploads/*
+!server/uploads/.gitkeep
 dist
 dist-ssr
 *.local
