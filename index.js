@@ -146,15 +146,15 @@ Return ONLY this JSON format:
   "suggestions": [],
   "technicalSkillsDetected": [],
   "projectsDetected": [],
-  "scoreBreakdown": { (out of 100!!!!!!!!!! please give me out of 100 please important)
-    "Structure": 0,
-    "ATS Friendliness": 0,
-    "Technical Skills": 0,
-    "Projects": 0,
-    "Experience": 0,
-    "Education": 0,
-    "Achievements": 0,
-    "Readability": 0
+  "scoreBreakdown": { 
+    "Structure": 0/100,
+    "ATS Friendliness": 0/100,
+    "Technical Skills": 0/100,
+    "Projects": 0/100,
+    "Experience": 0/100,
+    "Education": 0/100,
+    "Achievements": 0/100,
+    "Readability": 0/100
   },
   "interviewQuestions": {
     "technical": [question :"",answer:""],
