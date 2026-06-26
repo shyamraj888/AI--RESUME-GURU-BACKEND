@@ -19,14 +19,7 @@ const ai = new GoogleGenAI({
 connectDB();
 const app = express();
 
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    process.env.FRONTEND_URL  // add your Vercel URL here in .env
-  ],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 
