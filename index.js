@@ -169,18 +169,38 @@ const response = await ai.models.generateContent({
   contents: prompt,
 });
 
-const result = response.text;
+const raw = response.text;
 
-console.log(result);
+console.log("RAW:", raw);
 
-const cleaned = response.text
- .replace(/```json\s*/i, '')
-    .replace(/```\s*/g, '')
-    .trim();
+const cleaned = raw
+  .replace(/```json\s*/i, "")
+  .replace(/```/g, "")
+  .trim()
+  .normalize("NFKC")
+  .replace(/[\u2018\u2019]/g, "'")
+  .replace(/[\u201C\u201D]/g, '"')
+  .replace(/µ|μ/g, "u")
+  .replace(/\n/g, " ")
+  .replace(/\r/g, " ")
+  .replace(/\t/g, " ")
+  .replace(/\s+/g, " ")
+  .trim();
 
-const analysis = JSON.parse(cleaned);
+let analysis;
 
-res.json(analysis);
+try {
+  analysis = JSON.parse(cleaned);
+} catch (err) {
+  console.log("JSON PARSE FAILED");
+  console.log(cleaned);
+  return res.status(500).json({
+    error: "Invalid AI JSON response",
+    raw: cleaned,
+  });
+}
+
+return res.json(analysis);
 
     
 
