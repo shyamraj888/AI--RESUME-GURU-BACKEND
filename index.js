@@ -49,78 +49,120 @@ app.post("/upload", upload.single("resume"), async (req, res) => {
     const fileBuffer = fs.readFileSync(filePath);
     const data = await pdfParse(fileBuffer);
     const resumeText = data.text;
-  const prompt = `
-You are an expert ATS (Applicant Tracking System) and Senior Technical Recruiter 
-with 15+ years of experience evaluating resumes.
+const prompt =`
 
-Analyze the resume below and return ONLY a valid JSON object.
+   You are an expert ATS (Applicant Tracking System) and Senior Technical Recruiter with 15+ years of experience evaluating resumes as per the field of resume given.
 
-STRICT OUTPUT RULES:
-- Return ONLY raw JSON. No markdown. No backticks. No code blocks.
-- Use ONLY straight double quotes for all JSON keys and values.
-- Do NOT use smart quotes or curly apostrophes anywhere.
-- Escape any apostrophes inside string values with backslash: it\\'s
-- Do NOT include newlines inside string values.
-- Response must be directly parseable by JSON.parse() with zero modification.
+Your task is to analyze the resume exactly as an ATS and recruiter would.
 
-SCORING GUIDELINES:
-90-100: Exceptional — strong projects, measurable impact, highly interview-ready.
-80-89:  Very good — minor improvements needed.
-70-79:  Good — lacks some impact or clarity.
-60-69:  Average — significant improvements needed.
-50-59:  Weak — missing important sections.
-Below 50: Poor — major deficiencies.
+IMPORTANT RULES:
 
-EVALUATION CRITERIA: Structure, ATS Friendliness, Contact Info, Education,
-Technical Skills, Projects, Work Experience, Achievements, Certifications,
-Leadership, Quantified Results, Grammar, Readability, Industry Relevance.
+1. Be strict and objective.
+2. Use only information explicitly present in the resume.
+3. Do not assume skills, projects, experience, or achievements that are not mentioned.
+4. Do not randomly change scores.
+5. The same resume should produce nearly the same score every time.
+6. Score based on resume quality, structure, clarity, technical depth, and employability.
+7. Penalize vague descriptions, missing metrics, missing links, weak project explanations, and poor formatting.
+8. Reward measurable achievements, strong projects, internships, leadership, certifications, and technical depth.
+9. ATS score must be an integer from 0 to 100.
+10. Never output markdown.
+11. Return valid JSON only.
 
-INSTRUCTIONS:
-- Be strict and objective. Only use info explicitly in the resume.
-- Never assume skills or experience not mentioned.
-- For weaknesses: mention specific problems, not generic advice.
-- For suggestions: give specific actionable improvements.
-- For missingSkills: suggest skills commonly expected for this candidate's profile.
-- Generate exactly 10 technical questions, 5 project-based, 5 behavioral.
-- Each question must have a detailed answer.
+SCORING GUIDELINES
 
-Resume text:
+90-100:
+Exceptional resume. Strong projects, measurable impact, excellent formatting, strong technical skills, highly interview-ready.
+
+80-89:
+Very good resume. Minor improvements needed.
+
+70-79:
+Good resume but lacks some impact, technical depth, optimization, or clarity.
+
+60-69:
+Average resume. Significant improvements needed.
+
+50-59:
+Weak resume. Missing important sections or strong evidence of skills.
+
+Below 50:
+Poor resume. Major deficiencies in structure, content, or technical qualifications.
+
+EVALUATION CRITERIA
+
+Evaluate:
+
+- Resume Structure
+- ATS Friendliness
+- Contact Information
+- Education
+- Technical Skills
+- Projects
+- Work Experience
+- Internships
+- Achievements
+- Certifications
+- Leadership
+- Quantified Results
+- Grammar
+- Readability
+- Industry Relevance
+- Software Engineering Readiness
+
+For weaknesses:
+- Mention specific problems.
+- Do not provide generic advice.
+
+For suggestions:
+- Give actionable improvements.
+
+for score breakdown dont give name on your own use that i hvae mentioned only and according to it give score 
+
+For missingSkills:
+- Suggest skills commonly expected for the candidate's profile.
+
+For interviewQuestions:
+Generate:
+- 10 Technical Questions
+- 5 Project-Based Questions
+- 5 HR/Behavioral Questions
+with each question also generate the answer
+Resume:
+
 ${resumeText}
 
-Return ONLY this exact JSON structure (no extra fields, no markdown):
+Return ONLY this JSON format:
+
 {
-  "category": "one word: Exceptional or Good or Average or Weak or Poor",
+
+  "category":" one word like average above avrage poor .."
   "atsScore": 0,
-  "resumeLevel": "one sentence description",
-  "summary": "detailed paragraph summary",
-  "strengths": ["strength 1", "strength 2"],
-  "weaknesses": ["weakness 1", "weakness 2"],
-  "missingSkills": ["skill 1", "skill 2"],
-  "suggestions": ["suggestion 1", "suggestion 2"],
-  "technicalSkillsDetected": ["skill 1", "skill 2"],
-  "projectsDetected": ["project 1", "project 2"],
-  "scoreBreakdown": {
-    "Structure": 0,
-    "ATS Friendliness": 0,
-    "Technical Skills": 0,
-    "Projects": 0,
-    "Experience": 0,
-    "Education": 0,
-    "Achievements": 0,
-    "Readability": 0
+  "resumeLevel": "",
+  "summary": "",
+  "strengths": [],
+  "weaknesses": [],
+  "missingSkills": [],
+  "suggestions": [],
+  "technicalSkillsDetected": [],
+  "projectsDetected": [],
+  "scoreBreakdown": { 
+    "Structure": 0/100,
+    "ATS Friendliness": 0/100,
+    "Technical Skills": 0/100,
+    "Projects": 0/100,
+    "Experience": 0/100,
+    "Education": 0/100,
+    "Achievements": 0/100,
+    "Readability": 0/100
   },
   "interviewQuestions": {
-    "technical": [
-      { "question": "question text here", "answer": "detailed answer here" }
-    ],
-    "projectBased": [
-      { "question": "question text here", "answer": "detailed answer here" }
-    ],
-    "behavioral": [
-      { "question": "question text here", "answer": "detailed answer here" }
-    ]
+    "technical": [question :"",answer:""],
+    "projectBased": [question :"",answer:""],
+    "behavioral": [question :"",answer:""]
+
   }
-}`
+  }`
 
 const response = await ai.models.generateContent({
   model: "gemini-2.5-flash",
@@ -132,10 +174,9 @@ const result = response.text;
 console.log(result);
 
 const cleaned = response.text
- .replace(/^```json\s*/i, '')
-      .replace(/^```\s*/i, '')
-      .replace(/```\s*$/i, '')
-      .trim();
+ .replace(/```json\s*/i, '')
+    .replace(/```\s*/g, '')
+    .trim();
 
 const analysis = JSON.parse(cleaned);
 
