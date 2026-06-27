@@ -132,7 +132,13 @@ Resume:
 
 ${resumeText}
 
-Return ONLY this JSON format:
+Return ONLY a valid JSON object.
+
+Do NOT wrap it in markdown.
+Do NOT wrap it in quotes.
+Do NOT escape the JSON.
+Do NOT output any explanation.
+The first character must be { and the last character must be }.
 
 {
 
@@ -190,14 +196,26 @@ const cleaned = raw
 let analysis;
 
 try {
-  analysis = JSON.parse(cleaned);
+    analysis = JSON.parse(cleaned);
+
+    
+    if (typeof analysis === "string") {
+        analysis = JSON.parse(analysis);
+    }
+
 } catch (err) {
-  console.log("JSON PARSE FAILED");
-  console.log(cleaned);
-  return res.status(500).json({
-    error: "Invalid AI JSON response",
-    raw: cleaned,
-  });
+    console.error("RAW:");
+    console.error(JSON.stringify(raw));
+
+    console.error("CLEANED:");
+    console.error(cleaned);
+
+    console.error(err);
+
+    return res.status(500).json({
+        error: err.message,
+        raw
+    });
 }
 
 return res.json(analysis);
